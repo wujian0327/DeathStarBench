@@ -212,6 +212,10 @@ func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	log.Trace().Msg("starts searchHandler")
 
@@ -289,12 +293,20 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Trace().Msg("searchHandler gets profileResp")
 
+	if span != nil {
+		span.LogKV("results", profileResp.String())
+	}
+
 	json.NewEncoder(w).Encode(geoJSONResponse(profileResp.Hotels))
 }
 
 func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	sLat, sLon := r.URL.Query().Get("lat"), r.URL.Query().Get("lon")
 	if sLat == "" || sLon == "" {
@@ -339,12 +351,20 @@ func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if span != nil {
+		span.LogKV("results", profileResp.String())
+	}
+
 	json.NewEncoder(w).Encode(geoJSONResponse(profileResp.Hotels))
 }
 
 func (s *Server) reviewHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
 	if username == "" || password == "" {
@@ -391,12 +411,20 @@ func (s *Server) reviewHandler(w http.ResponseWriter, r *http.Request) {
 		"message": str,
 	}
 
+	if span != nil {
+		span.LogKV("results", revResp.String())
+	}
+
 	json.NewEncoder(w).Encode(res)
 }
 
 func (s *Server) restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
 	if username == "" || password == "" {
@@ -443,12 +471,20 @@ func (s *Server) restaurantHandler(w http.ResponseWriter, r *http.Request) {
 		"message": str,
 	}
 
+	if span != nil {
+		span.LogKV("results", revResp.String())
+	}
+
 	json.NewEncoder(w).Encode(res)
 }
 
 func (s *Server) museumHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
 	if username == "" || password == "" {
@@ -495,12 +531,20 @@ func (s *Server) museumHandler(w http.ResponseWriter, r *http.Request) {
 		"message": str,
 	}
 
+	if span != nil {
+		span.LogKV("results", revResp.String())
+	}
+
 	json.NewEncoder(w).Encode(res)
 }
 
 func (s *Server) cinemaHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
 	if username == "" || password == "" {
@@ -547,12 +591,20 @@ func (s *Server) cinemaHandler(w http.ResponseWriter, r *http.Request) {
 		"message": str,
 	}
 
+	if span != nil {
+		span.LogKV("results", revResp.String())
+	}
+
 	json.NewEncoder(w).Encode(res)
 }
 
 func (s *Server) userHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
 	if username == "" || password == "" {
@@ -579,12 +631,20 @@ func (s *Server) userHandler(w http.ResponseWriter, r *http.Request) {
 		"message": str,
 	}
 
+	if span != nil {
+		span.LogKV("results", recResp.String())
+	}
+
 	json.NewEncoder(w).Encode(res)
 }
 
 func (s *Server) reservationHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", r.URL.Query().Encode())
+	}
 
 	inDate, outDate := r.URL.Query().Get("inDate"), r.URL.Query().Get("outDate")
 	if inDate == "" || outDate == "" {
@@ -654,6 +714,10 @@ func (s *Server) reservationHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := map[string]interface{}{
 		"message": str,
+	}
+
+	if span != nil {
+		span.LogKV("results", resResp.String())
 	}
 
 	json.NewEncoder(w).Encode(res)

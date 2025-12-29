@@ -93,6 +93,11 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, er
 
 	log.Trace().Msg("CheckUser")
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	sum := sha256.Sum256([]byte(req.Password))
 	pass := fmt.Sprintf("%x", sum)
 
@@ -102,6 +107,10 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, er
 	}
 
 	log.Trace().Msgf("CheckUser %d", res.Correct)
+
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
 
 	return res, nil
 }

@@ -130,6 +130,11 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	// find nearby hotels
 	log.Trace().Msg("in Search Nearby")
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	log.Trace().Msgf("nearby lat = %f", req.Lat)
 	log.Trace().Msgf("nearby lon = %f", req.Lon)
 
@@ -166,5 +171,10 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 		log.Trace().Msgf("get RatePlan HotelId = %s, Code = %s", ratePlan.HotelId, ratePlan.Code)
 		res.HotelIds = append(res.HotelIds, ratePlan.HotelId)
 	}
+
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
+
 	return res, nil
 }

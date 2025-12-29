@@ -111,6 +111,11 @@ func (s *Server) Shutdown() {
 func (s *Server) NearbyRest(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	log.Trace().Msgf("In Attractions NearbyRest")
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_restaurant")
 	mongoSpan.SetTag("span.kind", "client")
 
@@ -141,12 +146,21 @@ func (s *Server) NearbyRest(ctx context.Context, req *pb.Request) (*pb.Result, e
 		res.AttractionIds = append(res.AttractionIds, p.Id())
 	}
 
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
+
 	return res, nil
 }
 
 // NearbyMus returns all museums close to the hotel.
 func (s *Server) NearbyMus(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	log.Trace().Msgf("In Attractions NearbyMus")
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
 
 	mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_museum")
 	mongoSpan.SetTag("span.kind", "client")
@@ -178,12 +192,21 @@ func (s *Server) NearbyMus(ctx context.Context, req *pb.Request) (*pb.Result, er
 		res.AttractionIds = append(res.AttractionIds, p.Id())
 	}
 
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
+
 	return res, nil
 }
 
 // NearbyCinema returns all cinemas close to the hotel.
 func (s *Server) NearbyCinema(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	log.Trace().Msgf("In Attractions NearbyCinema")
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
 
 	mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_cinema")
 	mongoSpan.SetTag("span.kind", "client")
@@ -213,6 +236,10 @@ func (s *Server) NearbyCinema(ctx context.Context, req *pb.Request) (*pb.Result,
 	for _, p := range points {
 		log.Trace().Msgf("In cinemas Nearby return cinemaId = %s", p.Id())
 		res.AttractionIds = append(res.AttractionIds, p.Id())
+	}
+
+	if span != nil {
+		span.LogKV("results", res.String())
 	}
 
 	return res, nil

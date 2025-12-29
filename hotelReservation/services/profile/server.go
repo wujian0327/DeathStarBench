@@ -93,6 +93,11 @@ func (s *Server) Shutdown() {
 func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	log.Trace().Msgf("In GetProfiles")
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
 
@@ -161,5 +166,10 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 
 	res.Hotels = hotels
 	log.Trace().Msgf("In GetProfiles after getting resp")
+
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
+
 	return res, nil
 }

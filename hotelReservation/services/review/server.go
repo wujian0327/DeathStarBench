@@ -112,6 +112,12 @@ type ImageHelper struct {
 func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 
 	res := new(pb.Result)
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	reviews := make([]*pb.ReviewComm, 0)
 
 	hotelId := req.HotelId
@@ -173,5 +179,10 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 	//reviewsEmpty := make([]*pb.ReviewComm, 0)
 
 	res.Reviews = reviews
+
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
+
 	return res, nil
 }

@@ -93,6 +93,11 @@ func (s *Server) Shutdown() {
 func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	ratePlans := make(RatePlans, 0)
 
 	hotelIds := []string{}
@@ -177,6 +182,10 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 
 	sort.Sort(ratePlans)
 	res.RatePlans = ratePlans
+
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
 
 	return res, nil
 }

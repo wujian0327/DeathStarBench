@@ -95,6 +95,11 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	res := new(pb.Result)
 	res.HotelId = make([]string, 0)
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	database := s.MongoClient.Database("reservation-db")
 	resCollection := database.Collection("reservation")
 	numCollection := database.Collection("number")
@@ -177,6 +182,9 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 		}
 
 		if count+int(req.RoomNumber) > hotel_cap {
+			if span != nil {
+				span.LogKV("results", res.String())
+			}
 			return res, nil
 		}
 		indate = outdate
@@ -214,6 +222,10 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 
 	res.HotelId = append(res.HotelId, hotelId)
 
+	if span != nil {
+		span.LogKV("results", res.String())
+	}
+
 	return res, nil
 }
 
@@ -221,6 +233,11 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
 	res.HotelId = make([]string, 0)
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
 
 	hotelMemKeys := []string{}
 	keysMap := make(map[string]struct{})
@@ -405,6 +422,10 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		if v {
 			res.HotelId = append(res.HotelId, k)
 		}
+	}
+
+	if span != nil {
+		span.LogKV("results", res.String())
 	}
 
 	return res, nil

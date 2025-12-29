@@ -92,6 +92,12 @@ func (s *Server) Shutdown() {
 func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
 	log.Trace().Msgf("GetRecommendations")
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	require := req.Require
 	if require == "dis" {
 		p1 := &geoindex.GeoPoint{
@@ -146,6 +152,10 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 		}
 	} else {
 		log.Warn().Msgf("Wrong require parameter: %v", require)
+	}
+
+	if span != nil {
+		span.LogKV("results", res.String())
 	}
 
 	return res, nil

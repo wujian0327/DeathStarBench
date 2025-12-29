@@ -96,6 +96,11 @@ func (s *Server) Shutdown() {
 func (s *Server) Nearby(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	log.Trace().Msgf("In geo Nearby")
 
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.LogKV("params", req.String())
+	}
+
 	var (
 		points = s.getNearbyPoints(ctx, float64(req.Lat), float64(req.Lon))
 		res    = &pb.Result{}
@@ -106,6 +111,10 @@ func (s *Server) Nearby(ctx context.Context, req *pb.Request) (*pb.Result, error
 	for _, p := range points {
 		log.Trace().Msgf("In geo Nearby return hotelId = %s", p.Id())
 		res.HotelIds = append(res.HotelIds, p.Id())
+	}
+
+	if span != nil {
+		span.LogKV("results", res.String())
 	}
 
 	return res, nil
